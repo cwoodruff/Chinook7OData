@@ -7,24 +7,19 @@ using Microsoft.AspNetCore.OData.Query;
 
 namespace Chinook.API.Controllers;
 
-public class CustomerController : ControllerBase
+public class InvoicesController : ControllerBase
 {
     private readonly IChinookSupervisor _chinookSupervisor;
-    private readonly ILogger<CustomerController> _logger;
 
-    public CustomerController(IChinookSupervisor chinookSupervisor, ILogger<CustomerController> logger)
-    {
-        _chinookSupervisor = chinookSupervisor;
-        _logger = logger;
-    }
-    
+    public InvoicesController(IChinookSupervisor chinookSupervisor) => _chinookSupervisor = chinookSupervisor;
+
     [EnableQuery]
-    public async Task<ActionResult<List<CustomerApiModel>>> Get()
+    public async Task<ActionResult<List<InvoiceApiModel>>> Get()
     {
         try
         {
-            var customers = await _chinookSupervisor.GetAllCustomer();
-            return Ok(customers);
+            var invoices = await _chinookSupervisor.GetAllInvoice();
+            return Ok(invoices);
         }
         catch (Exception)
         {
@@ -33,12 +28,12 @@ public class CustomerController : ControllerBase
     }
 
     [EnableQuery]
-    public async Task<ActionResult<CustomerApiModel>> Get([FromRoute] int id)
+    public async Task<ActionResult<InvoiceApiModel>> Get([FromRoute] int id)
     {
         try
         {
-            var customer = await _chinookSupervisor.GetCustomerById(id);
-            return Ok(customer);
+            var invoice = await _chinookSupervisor.GetInvoiceById(id);
+            return Ok(invoice);
         }
         catch (Exception)
         {
@@ -46,12 +41,12 @@ public class CustomerController : ControllerBase
         }
     }
     
-    public async Task<ActionResult<CustomerApiModel>> Post([FromBody] CustomerApiModel input)
+    public async Task<ActionResult<InvoiceApiModel>> Post([FromBody] InvoiceApiModel input)
     {
         try
         {
-            var customer = await _chinookSupervisor.AddCustomer(input);
-            return Ok(customer);
+            var invoice = await _chinookSupervisor.AddInvoice(input);
+            return Ok(invoice);
         }
         catch (ValidationException ex)
         {
@@ -59,12 +54,12 @@ public class CustomerController : ControllerBase
         }
     }
     
-    public async Task<ActionResult<CustomerApiModel>> Put([FromRoute] int id, [FromBody] CustomerApiModel input)
+    public async Task<ActionResult<InvoiceApiModel>> Put([FromRoute] int id, [FromBody] InvoiceApiModel input)
     {
         try
         {
-            var customer = await _chinookSupervisor.UpdateCustomer(input);
-            return Ok(customer);
+            var invoice = await _chinookSupervisor.UpdateInvoice(input);
+            return Ok(invoice);
         }
         catch (ValidationException ex)
         {
@@ -94,7 +89,7 @@ public class CustomerController : ControllerBase
     {
         try
         {
-            await _chinookSupervisor.DeleteCustomer(id);
+            await _chinookSupervisor.DeleteInvoice(id);
             return Ok();
         }
         catch (Exception)

@@ -7,24 +7,19 @@ using Microsoft.AspNetCore.OData.Query;
 
 namespace Chinook.API.Controllers;
 
-public class InvoiceLineController : ControllerBase
+public class MediaTypesController : ControllerBase
 {
     private readonly IChinookSupervisor _chinookSupervisor;
-    private readonly ILogger<InvoiceLineController> _logger;
 
-    public InvoiceLineController(IChinookSupervisor chinookSupervisor, ILogger<InvoiceLineController> logger)
-    {
-        _chinookSupervisor = chinookSupervisor;
-        _logger = logger;
-    }
+    public MediaTypesController(IChinookSupervisor chinookSupervisor) => _chinookSupervisor = chinookSupervisor;
 
     [EnableQuery]
-    public async Task<ActionResult<List<InvoiceLineApiModel>>> Get()
+    public async Task<ActionResult<List<MediaTypeApiModel>>> Get()
     {
         try
         {
-            var invoiceLines = await _chinookSupervisor.GetAllInvoiceLine();
-            return Ok(invoiceLines);
+            var mediaTypes = await _chinookSupervisor.GetAllMediaType();
+            return Ok(mediaTypes);
         }
         catch (Exception)
         {
@@ -33,12 +28,12 @@ public class InvoiceLineController : ControllerBase
     }
 
     [EnableQuery]
-    public async Task<ActionResult<InvoiceLineApiModel>> Get([FromRoute] int id)
+    public async Task<ActionResult<MediaTypeApiModel>> Get([FromRoute] int id)
     {
         try
         {
-            var invoiceLine = await _chinookSupervisor.GetInvoiceLineById(id);
-            return Ok(invoiceLine);
+            var mediaType = await _chinookSupervisor.GetMediaTypeById(id);
+            return Ok(mediaType);
         }
         catch (Exception)
         {
@@ -46,12 +41,12 @@ public class InvoiceLineController : ControllerBase
         }
     }
     
-    public async Task<ActionResult<InvoiceLineApiModel>> Post([FromBody] InvoiceLineApiModel input)
+    public async Task<ActionResult<MediaTypeApiModel>> Post([FromBody] MediaTypeApiModel input)
     {
         try
         {
-            var invoiceLine = await _chinookSupervisor.AddInvoiceLine(input);
-            return Ok(invoiceLine);
+            var mediaType = await _chinookSupervisor.AddMediaType(input);
+            return Ok(mediaType);
         }
         catch (ValidationException ex)
         {
@@ -59,12 +54,12 @@ public class InvoiceLineController : ControllerBase
         }
     }
     
-    public async Task<ActionResult<InvoiceLineApiModel>> Put([FromRoute] int id, [FromBody] InvoiceLineApiModel input)
+    public async Task<ActionResult<MediaTypeApiModel>> Put([FromRoute] int id, [FromBody] MediaTypeApiModel input)
     {
         try
         {
-            var invoiceLine = await _chinookSupervisor.UpdateInvoiceLine(input);
-            return Ok(invoiceLine);
+            var mediaType = await _chinookSupervisor.UpdateMediaType(input);
+            return Ok(mediaType);
         }
         catch (ValidationException ex)
         {
@@ -94,7 +89,7 @@ public class InvoiceLineController : ControllerBase
     {
         try
         {
-            await _chinookSupervisor.DeleteInvoiceLine(id);
+            await _chinookSupervisor.DeleteMediaType(id);
             return Ok();
         }
         catch (Exception)

@@ -4,27 +4,23 @@ using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Deltas;
 using Microsoft.AspNetCore.OData.Query;
+using Microsoft.AspNetCore.OData.Routing.Controllers;
 
 namespace Chinook.API.Controllers;
 
-public class MediaTypeController : ControllerBase
+public class AlbumsController : ODataController
 {
     private readonly IChinookSupervisor _chinookSupervisor;
-    private readonly ILogger<MediaTypeController> _logger;
 
-    public MediaTypeController(IChinookSupervisor chinookSupervisor, ILogger<MediaTypeController> logger)
-    {
-        _chinookSupervisor = chinookSupervisor;
-        _logger = logger;
-    }
+    public AlbumsController(IChinookSupervisor chinookSupervisor) => _chinookSupervisor = chinookSupervisor;
 
     [EnableQuery]
-    public async Task<ActionResult<List<MediaTypeApiModel>>> Get()
+    public async Task<ActionResult> Get()
     {
         try
         {
-            var mediaTypes = await _chinookSupervisor.GetAllMediaType();
-            return Ok(mediaTypes);
+            var albums = await _chinookSupervisor.GetAllAlbum();
+            return Ok(albums);
         }
         catch (Exception)
         {
@@ -33,25 +29,26 @@ public class MediaTypeController : ControllerBase
     }
 
     [EnableQuery]
-    public async Task<ActionResult<MediaTypeApiModel>> Get([FromRoute] int id)
+    public async Task<ActionResult> Get([FromRoute] int id)
     {
         try
         {
-            var mediaType = await _chinookSupervisor.GetMediaTypeById(id);
-            return Ok(mediaType);
+            var album = await _chinookSupervisor.GetAlbumById(id);
+            return Ok(album);
         }
         catch (Exception)
         {
             return NotFound();
         }
     }
-    
-    public async Task<ActionResult<MediaTypeApiModel>> Post([FromBody] MediaTypeApiModel input)
+
+    [HttpPost]
+    public async Task<ActionResult> Post([FromBody] AlbumApiModel input)
     {
         try
         {
-            var mediaType = await _chinookSupervisor.AddMediaType(input);
-            return Ok(mediaType);
+            var album = await _chinookSupervisor.AddAlbum(input);
+            return Ok(album);
         }
         catch (ValidationException ex)
         {
@@ -59,12 +56,13 @@ public class MediaTypeController : ControllerBase
         }
     }
     
-    public async Task<ActionResult<MediaTypeApiModel>> Put([FromRoute] int id, [FromBody] MediaTypeApiModel input)
+    [HttpPut("odata/Albums({id})")]
+    public async Task<ActionResult> Put([FromRoute] int id, [FromBody] AlbumApiModel input)
     {
         try
         {
-            var mediaType = await _chinookSupervisor.UpdateMediaType(input);
-            return Ok(mediaType);
+            var album = await _chinookSupervisor.UpdateAlbum(input);
+            return Ok(album);
         }
         catch (ValidationException ex)
         {
@@ -72,7 +70,8 @@ public class MediaTypeController : ControllerBase
         }
     }
     
-    public async Task<ActionResult> Patch([FromRoute] int id, [FromBody] Delta<CustomerApiModel> delta)
+    [HttpPatch("odata/Albums({id})")]
+    public async Task<ActionResult> Patch([FromRoute] int id, [FromBody] Delta<AlbumApiModel> delta)
     {
         // var customer = db.Customers.SingleOrDefault(d => d.Id == key);
         //
@@ -90,11 +89,12 @@ public class MediaTypeController : ControllerBase
         return Ok();
     }
     
+    [HttpDelete("odata/Albums({id})")]
     public async Task<ActionResult> Delete([FromRoute] int id)
     {
         try
         {
-            await _chinookSupervisor.DeleteMediaType(id);
+            await _chinookSupervisor.DeleteAlbum(id);
             return Ok();
         }
         catch (Exception)

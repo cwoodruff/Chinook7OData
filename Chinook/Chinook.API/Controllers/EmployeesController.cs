@@ -4,23 +4,22 @@ using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Deltas;
 using Microsoft.AspNetCore.OData.Query;
-using Microsoft.AspNetCore.OData.Routing.Controllers;
 
 namespace Chinook.API.Controllers;
 
-public class AlbumController : ODataController
+public class EmployeesController : ControllerBase
 {
     private readonly IChinookSupervisor _chinookSupervisor;
 
-    public AlbumController(IChinookSupervisor chinookSupervisor) => _chinookSupervisor = chinookSupervisor;
+    public EmployeesController(IChinookSupervisor chinookSupervisor) => _chinookSupervisor = chinookSupervisor;
 
     [EnableQuery]
-    public async Task<ActionResult<IEnumerable<AlbumApiModel>>> Get()
+    public async Task<ActionResult<List<EmployeeApiModel>>> Get()
     {
         try
         {
-            var albums = await _chinookSupervisor.GetAllAlbum();
-            return Ok(albums);
+            var employees = await _chinookSupervisor.GetAllEmployee();
+            return Ok(employees);
         }
         catch (Exception)
         {
@@ -29,25 +28,25 @@ public class AlbumController : ODataController
     }
 
     [EnableQuery]
-    public async Task<ActionResult<AlbumApiModel>> Get([FromRoute] int id)
+    public async Task<ActionResult<EmployeeApiModel>> Get([FromRoute] int id)
     {
         try
         {
-            var album = await _chinookSupervisor.GetAlbumById(id);
-            return Ok(album);
+            var employee = await _chinookSupervisor.GetEmployeeById(id);
+            return Ok(employee);
         }
         catch (Exception)
         {
             return NotFound();
         }
     }
-
-    public async Task<ActionResult<AlbumApiModel>> Post([FromBody] AlbumApiModel input)
+    
+    public async Task<ActionResult<EmployeeApiModel>> Post([FromBody] EmployeeApiModel input)
     {
         try
         {
-            var album = await _chinookSupervisor.AddAlbum(input);
-            return Ok(album);
+            var employee = await _chinookSupervisor.AddEmployee(input);
+            return Ok(employee);
         }
         catch (ValidationException ex)
         {
@@ -55,12 +54,12 @@ public class AlbumController : ODataController
         }
     }
     
-    public async Task<ActionResult<AlbumApiModel>> Put([FromRoute] int id, [FromBody] AlbumApiModel input)
+    public async Task<ActionResult<EmployeeApiModel>> Put([FromRoute] int id, [FromBody] EmployeeApiModel input)
     {
         try
         {
-            var album = await _chinookSupervisor.UpdateAlbum(input);
-            return Ok(album);
+            var employee = await _chinookSupervisor.UpdateEmployee(input);
+            return Ok(employee);
         }
         catch (ValidationException ex)
         {
@@ -68,7 +67,7 @@ public class AlbumController : ODataController
         }
     }
     
-    public async Task<ActionResult> Patch([FromRoute] int id, [FromBody] Delta<AlbumApiModel> delta)
+    public async Task<ActionResult> Patch([FromRoute] int id, [FromBody] Delta<CustomerApiModel> delta)
     {
         // var customer = db.Customers.SingleOrDefault(d => d.Id == key);
         //
@@ -90,7 +89,7 @@ public class AlbumController : ODataController
     {
         try
         {
-            await _chinookSupervisor.DeleteAlbum(id);
+            await _chinookSupervisor.DeleteEmployee(id);
             return Ok();
         }
         catch (Exception)

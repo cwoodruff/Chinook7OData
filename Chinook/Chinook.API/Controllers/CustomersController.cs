@@ -7,24 +7,19 @@ using Microsoft.AspNetCore.OData.Query;
 
 namespace Chinook.API.Controllers;
 
-public class EmployeeController : ControllerBase
+public class CustomersController : ControllerBase
 {
     private readonly IChinookSupervisor _chinookSupervisor;
-    private readonly ILogger<EmployeeController> _logger;
 
-    public EmployeeController(IChinookSupervisor chinookSupervisor, ILogger<EmployeeController> logger)
-    {
-        _chinookSupervisor = chinookSupervisor;
-        _logger = logger;
-    }
-
+    public CustomersController(IChinookSupervisor chinookSupervisor) => _chinookSupervisor = chinookSupervisor;
+    
     [EnableQuery]
-    public async Task<ActionResult<List<EmployeeApiModel>>> Get()
+    public async Task<ActionResult<List<CustomerApiModel>>> Get()
     {
         try
         {
-            var employees = await _chinookSupervisor.GetAllEmployee();
-            return Ok(employees);
+            var customers = await _chinookSupervisor.GetAllCustomer();
+            return Ok(customers);
         }
         catch (Exception)
         {
@@ -33,12 +28,12 @@ public class EmployeeController : ControllerBase
     }
 
     [EnableQuery]
-    public async Task<ActionResult<EmployeeApiModel>> Get([FromRoute] int id)
+    public async Task<ActionResult<CustomerApiModel>> Get([FromRoute] int id)
     {
         try
         {
-            var employee = await _chinookSupervisor.GetEmployeeById(id);
-            return Ok(employee);
+            var customer = await _chinookSupervisor.GetCustomerById(id);
+            return Ok(customer);
         }
         catch (Exception)
         {
@@ -46,12 +41,12 @@ public class EmployeeController : ControllerBase
         }
     }
     
-    public async Task<ActionResult<EmployeeApiModel>> Post([FromBody] EmployeeApiModel input)
+    public async Task<ActionResult<CustomerApiModel>> Post([FromBody] CustomerApiModel input)
     {
         try
         {
-            var employee = await _chinookSupervisor.AddEmployee(input);
-            return Ok(employee);
+            var customer = await _chinookSupervisor.AddCustomer(input);
+            return Ok(customer);
         }
         catch (ValidationException ex)
         {
@@ -59,12 +54,12 @@ public class EmployeeController : ControllerBase
         }
     }
     
-    public async Task<ActionResult<EmployeeApiModel>> Put([FromRoute] int id, [FromBody] EmployeeApiModel input)
+    public async Task<ActionResult<CustomerApiModel>> Put([FromRoute] int id, [FromBody] CustomerApiModel input)
     {
         try
         {
-            var employee = await _chinookSupervisor.UpdateEmployee(input);
-            return Ok(employee);
+            var customer = await _chinookSupervisor.UpdateCustomer(input);
+            return Ok(customer);
         }
         catch (ValidationException ex)
         {
@@ -94,7 +89,7 @@ public class EmployeeController : ControllerBase
     {
         try
         {
-            await _chinookSupervisor.DeleteEmployee(id);
+            await _chinookSupervisor.DeleteCustomer(id);
             return Ok();
         }
         catch (Exception)

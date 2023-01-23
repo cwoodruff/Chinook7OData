@@ -4,28 +4,36 @@ using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Deltas;
 using Microsoft.AspNetCore.OData.Query;
-using Microsoft.AspNetCore.OData.Routing.Controllers;
 
 namespace Chinook.API.Controllers;
 
-public class ArtistController : ODataController
+public class PlaylistsController : ControllerBase
 {
     private readonly IChinookSupervisor _chinookSupervisor;
-    private readonly ILogger<ArtistController> _logger;
 
-    public ArtistController(IChinookSupervisor chinookSupervisor, ILogger<ArtistController> logger)
-    {
-        _chinookSupervisor = chinookSupervisor;
-        _logger = logger;
-    }
-    
+    public PlaylistsController(IChinookSupervisor chinookSupervisor) => _chinookSupervisor = chinookSupervisor;
+
     [EnableQuery]
-    public async Task<ActionResult<List<ArtistApiModel>>> Get()
+    public async Task<ActionResult<List<PlaylistApiModel>>> Get()
     {
         try
         {
-            var artists = await _chinookSupervisor.GetAllArtist();
-            return Ok(artists);
+            var playlists = await _chinookSupervisor.GetAllPlaylist();
+            return Ok(playlists);
+        }
+        catch (Exception)
+        {
+            return NotFound();
+        }
+    }
+
+    [EnableQuery]
+    public async Task<ActionResult<PlaylistApiModel>> Get([FromRoute] int id)
+    {
+        try
+        {
+            var playlist = await _chinookSupervisor.GetPlaylistById(id);
+            return Ok(playlist);
         }
         catch (Exception)
         {
@@ -33,26 +41,12 @@ public class ArtistController : ODataController
         }
     }
     
-    [EnableQuery]
-    public async Task<ActionResult<ArtistApiModel>> Get([FromRoute] int id)
+    public async Task<ActionResult<PlaylistApiModel>> Post([FromBody] PlaylistApiModel input)
     {
         try
         {
-            var artist = await _chinookSupervisor.GetArtistById(id);
-            return Ok(artist);
-        }
-        catch (Exception)
-        {
-            return NotFound();
-        }
-    }
-    
-    public async Task<ActionResult<ArtistApiModel>> Post([FromBody] ArtistApiModel input)
-    {
-        try
-        {
-            var artist = await _chinookSupervisor.AddArtist(input);
-            return Ok(artist);
+            var playlist = await _chinookSupervisor.AddPlaylist(input);
+            return Ok(playlist);
         }
         catch (ValidationException ex)
         {
@@ -60,12 +54,12 @@ public class ArtistController : ODataController
         }
     }
     
-    public async Task<ActionResult<ArtistApiModel>> Put([FromRoute] int id, [FromBody]  ArtistApiModel input)
+    public async Task<ActionResult<PlaylistApiModel>> Put([FromRoute] int id, [FromBody] PlaylistApiModel input)
     {
         try
         {
-            var artist = await _chinookSupervisor.UpdateArtist(input);
-            return Ok(artist);
+            var playlist = await _chinookSupervisor.UpdatePlaylist(input);
+            return Ok(playlist);
         }
         catch (ValidationException ex)
         {
@@ -73,7 +67,7 @@ public class ArtistController : ODataController
         }
     }
     
-    public async Task<ActionResult> Patch([FromRoute] int id, [FromBody] Delta<AlbumApiModel> delta)
+    public async Task<ActionResult> Patch([FromRoute] int id, [FromBody] Delta<CustomerApiModel> delta)
     {
         // var customer = db.Customers.SingleOrDefault(d => d.Id == key);
         //
@@ -90,12 +84,12 @@ public class ArtistController : ODataController
         
         return Ok();
     }
-    
+
     public async Task<ActionResult> Delete([FromRoute] int id)
     {
         try
         {
-            await _chinookSupervisor.DeleteArtist(id);
+            await _chinookSupervisor.DeletePlaylist(id);
             return Ok();
         }
         catch (Exception)

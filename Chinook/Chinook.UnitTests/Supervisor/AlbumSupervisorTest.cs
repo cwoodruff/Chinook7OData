@@ -33,7 +33,7 @@ public class AlbumSupervisorTest : IDisposable
             null, null, null, null,
             null, null, null, null,
             null, null, null, null, null,
-            null, null, null, new MemoryCache(new MemoryCacheOptions()), null);
+            null, null, null, new MemoryCache(new MemoryCacheOptions()));
     }
 
     /// <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>

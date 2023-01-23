@@ -7,16 +7,11 @@ using Microsoft.AspNetCore.OData.Query;
 
 namespace Chinook.API.Controllers;
 
-public class TrackController : ControllerBase
+public class TracksController : ControllerBase
 {
     private readonly IChinookSupervisor _chinookSupervisor;
-    private readonly ILogger<TrackController> _logger;
 
-    public TrackController(IChinookSupervisor chinookSupervisor, ILogger<TrackController> logger)
-    {
-        _chinookSupervisor = chinookSupervisor;
-        _logger = logger;
-    }
+    public TracksController(IChinookSupervisor chinookSupervisor) => _chinookSupervisor = chinookSupervisor;
 
     [EnableQuery]
     public async Task<ActionResult<List<TrackApiModel>>> Get()

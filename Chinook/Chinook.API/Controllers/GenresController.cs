@@ -7,24 +7,19 @@ using Microsoft.AspNetCore.OData.Query;
 
 namespace Chinook.API.Controllers;
 
-public class InvoiceController : ControllerBase
+public class GenresController : ControllerBase
 {
     private readonly IChinookSupervisor _chinookSupervisor;
-    private readonly ILogger<InvoiceController> _logger;
 
-    public InvoiceController(IChinookSupervisor chinookSupervisor, ILogger<InvoiceController> logger)
-    {
-        _chinookSupervisor = chinookSupervisor;
-        _logger = logger;
-    }
+    public GenresController(IChinookSupervisor chinookSupervisor) => _chinookSupervisor = chinookSupervisor;
 
     [EnableQuery]
-    public async Task<ActionResult<List<InvoiceApiModel>>> Get()
+    public async Task<ActionResult<List<GenreApiModel>>> Get()
     {
         try
         {
-            var invoices = await _chinookSupervisor.GetAllInvoice();
-            return Ok(invoices);
+            var genres = await _chinookSupervisor.GetAllGenre();
+            return Ok(genres);
         }
         catch (Exception)
         {
@@ -33,12 +28,12 @@ public class InvoiceController : ControllerBase
     }
 
     [EnableQuery]
-    public async Task<ActionResult<InvoiceApiModel>> Get([FromRoute] int id)
+    public async Task<ActionResult<GenreApiModel>> Get([FromRoute] int id)
     {
         try
         {
-            var invoice = await _chinookSupervisor.GetInvoiceById(id);
-            return Ok(invoice);
+            var album = await _chinookSupervisor.GetGenreById(id);
+            return Ok(album);
         }
         catch (Exception)
         {
@@ -46,12 +41,12 @@ public class InvoiceController : ControllerBase
         }
     }
     
-    public async Task<ActionResult<InvoiceApiModel>> Post([FromBody] InvoiceApiModel input)
+    public async Task<ActionResult<GenreApiModel>> Post([FromBody] GenreApiModel input)
     {
         try
         {
-            var invoice = await _chinookSupervisor.AddInvoice(input);
-            return Ok(invoice);
+            var album = await _chinookSupervisor.AddGenre(input);
+            return Ok(album);
         }
         catch (ValidationException ex)
         {
@@ -59,12 +54,12 @@ public class InvoiceController : ControllerBase
         }
     }
     
-    public async Task<ActionResult<InvoiceApiModel>> Put([FromRoute] int id, [FromBody] InvoiceApiModel input)
+    public async Task<ActionResult<GenreApiModel>> Put([FromRoute] int id, [FromBody] GenreApiModel input)
     {
         try
         {
-            var invoice = await _chinookSupervisor.UpdateInvoice(input);
-            return Ok(invoice);
+            var album = await _chinookSupervisor.UpdateGenre(input);
+            return Ok(album);
         }
         catch (ValidationException ex)
         {
@@ -94,7 +89,7 @@ public class InvoiceController : ControllerBase
     {
         try
         {
-            await _chinookSupervisor.DeleteInvoice(id);
+            await _chinookSupervisor.DeleteGenre(id);
             return Ok();
         }
         catch (Exception)
