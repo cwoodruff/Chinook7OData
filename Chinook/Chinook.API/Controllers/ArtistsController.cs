@@ -15,6 +15,7 @@ public class ArtistsController : ODataController
     public ArtistsController(IChinookSupervisor chinookSupervisor) => _chinookSupervisor = chinookSupervisor;
 
     [EnableQuery]
+    [HttpGet("odata/Artists")]
     public async Task<ActionResult> Get()
     {
         try
@@ -29,6 +30,7 @@ public class ArtistsController : ODataController
     }
     
     [EnableQuery]
+    [HttpGet("odata/Artists({id})")]
     public async Task<ActionResult> Get([FromRoute] int id)
     {
         try
@@ -42,6 +44,7 @@ public class ArtistsController : ODataController
         }
     }
     
+    [HttpPost("odata/Artists")]
     public async Task<ActionResult<ArtistApiModel>> Post([FromBody] ArtistApiModel input)
     {
         try
@@ -55,6 +58,7 @@ public class ArtistsController : ODataController
         }
     }
     
+    [HttpPut("odata/Artists({id})")]
     public async Task<ActionResult<ArtistApiModel>> Put([FromRoute] int id, [FromBody]  ArtistApiModel input)
     {
         try
@@ -68,6 +72,7 @@ public class ArtistsController : ODataController
         }
     }
     
+    [HttpPatch("odata/Artists({id})")]
     public async Task<ActionResult> Patch([FromRoute] int id, [FromBody] Delta<AlbumApiModel> delta)
     {
         // var customer = db.Customers.SingleOrDefault(d => d.Id == key);
@@ -86,6 +91,7 @@ public class ArtistsController : ODataController
         return Ok();
     }
     
+    [HttpDelete("odata/Artists({id})")]
     public async Task<ActionResult> Delete([FromRoute] int id)
     {
         try

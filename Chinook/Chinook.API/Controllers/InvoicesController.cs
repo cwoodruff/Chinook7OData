@@ -4,16 +4,18 @@ using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Deltas;
 using Microsoft.AspNetCore.OData.Query;
+using Microsoft.AspNetCore.OData.Routing.Controllers;
 
 namespace Chinook.API.Controllers;
 
-public class InvoicesController : ControllerBase
+public class InvoicesController : ODataController
 {
     private readonly IChinookSupervisor _chinookSupervisor;
 
     public InvoicesController(IChinookSupervisor chinookSupervisor) => _chinookSupervisor = chinookSupervisor;
 
-    [EnableQuery]
+    [EnableQuery(PageSize = 1)]
+    [HttpGet("odata/Invoices")]
     public async Task<ActionResult<List<InvoiceApiModel>>> Get()
     {
         try
@@ -28,6 +30,7 @@ public class InvoicesController : ControllerBase
     }
 
     [EnableQuery]
+    [HttpGet("odata/Invoices({id})")]
     public async Task<ActionResult<InvoiceApiModel>> Get([FromRoute] int id)
     {
         try
@@ -41,6 +44,7 @@ public class InvoicesController : ControllerBase
         }
     }
     
+    [HttpPost("odata/Invoices")]
     public async Task<ActionResult<InvoiceApiModel>> Post([FromBody] InvoiceApiModel input)
     {
         try
@@ -54,6 +58,7 @@ public class InvoicesController : ControllerBase
         }
     }
     
+    [HttpPut("odata/Invoices({id})")]
     public async Task<ActionResult<InvoiceApiModel>> Put([FromRoute] int id, [FromBody] InvoiceApiModel input)
     {
         try
@@ -67,6 +72,7 @@ public class InvoicesController : ControllerBase
         }
     }
     
+    [HttpPatch("odata/Invoices({id})")]
     public async Task<ActionResult> Patch([FromRoute] int id, [FromBody] Delta<CustomerApiModel> delta)
     {
         // var customer = db.Customers.SingleOrDefault(d => d.Id == key);
@@ -85,6 +91,7 @@ public class InvoicesController : ControllerBase
         return Ok();
     }
     
+    [HttpDelete("odata/Invoices({id})")]
     public async Task<ActionResult> Delete([FromRoute] int id)
     {
         try

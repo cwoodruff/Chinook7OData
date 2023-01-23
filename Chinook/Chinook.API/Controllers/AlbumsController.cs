@@ -15,7 +15,8 @@ public class AlbumsController : ODataController
     public AlbumsController(IChinookSupervisor chinookSupervisor) => _chinookSupervisor = chinookSupervisor;
 
     [EnableQuery]
-    public async Task<ActionResult> Get()
+    [HttpGet("odata/Albums")]
+    public async Task<ActionResult<List<AlbumApiModel>>> Get()
     {
         try
         {
@@ -29,7 +30,8 @@ public class AlbumsController : ODataController
     }
 
     [EnableQuery]
-    public async Task<ActionResult> Get([FromRoute] int id)
+    [HttpGet("odata/Albums({id})")]
+    public async Task<ActionResult<AlbumApiModel>> Get([FromRoute] int id)
     {
         try
         {
@@ -42,7 +44,7 @@ public class AlbumsController : ODataController
         }
     }
 
-    [HttpPost]
+    [HttpPost("odata/Albums")]
     public async Task<ActionResult> Post([FromBody] AlbumApiModel input)
     {
         try

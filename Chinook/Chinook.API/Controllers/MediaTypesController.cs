@@ -4,16 +4,18 @@ using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Deltas;
 using Microsoft.AspNetCore.OData.Query;
+using Microsoft.AspNetCore.OData.Routing.Controllers;
 
 namespace Chinook.API.Controllers;
 
-public class MediaTypesController : ControllerBase
+public class MediaTypesController : ODataController
 {
     private readonly IChinookSupervisor _chinookSupervisor;
 
     public MediaTypesController(IChinookSupervisor chinookSupervisor) => _chinookSupervisor = chinookSupervisor;
 
     [EnableQuery]
+    [HttpGet("odata/MediaTypes")]
     public async Task<ActionResult<List<MediaTypeApiModel>>> Get()
     {
         try
@@ -28,6 +30,7 @@ public class MediaTypesController : ControllerBase
     }
 
     [EnableQuery]
+    [HttpGet("odata/MediaTypes({id})")]
     public async Task<ActionResult<MediaTypeApiModel>> Get([FromRoute] int id)
     {
         try
@@ -41,6 +44,7 @@ public class MediaTypesController : ControllerBase
         }
     }
     
+    [HttpPost("odata/MediaTypes")]
     public async Task<ActionResult<MediaTypeApiModel>> Post([FromBody] MediaTypeApiModel input)
     {
         try
@@ -54,6 +58,7 @@ public class MediaTypesController : ControllerBase
         }
     }
     
+    [HttpPut("odata/MediaTypes({id})")]
     public async Task<ActionResult<MediaTypeApiModel>> Put([FromRoute] int id, [FromBody] MediaTypeApiModel input)
     {
         try
@@ -67,6 +72,7 @@ public class MediaTypesController : ControllerBase
         }
     }
     
+    [HttpPatch("odata/MediaTypes({id})")]
     public async Task<ActionResult> Patch([FromRoute] int id, [FromBody] Delta<CustomerApiModel> delta)
     {
         // var customer = db.Customers.SingleOrDefault(d => d.Id == key);
@@ -85,6 +91,7 @@ public class MediaTypesController : ControllerBase
         return Ok();
     }
     
+    [HttpDelete("odata/MediaTypes({id})")]
     public async Task<ActionResult> Delete([FromRoute] int id)
     {
         try

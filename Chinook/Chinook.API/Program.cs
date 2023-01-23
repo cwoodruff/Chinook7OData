@@ -24,6 +24,8 @@ builder.Services.AddControllers().AddOData(options =>
 
 var app = builder.Build();
 
+app.UseODataRouteDebug();
+
 app.UseRouting();
 
 app.UseEndpoints(endpoints => endpoints.MapControllers());

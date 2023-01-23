@@ -4,16 +4,18 @@ using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Deltas;
 using Microsoft.AspNetCore.OData.Query;
+using Microsoft.AspNetCore.OData.Routing.Controllers;
 
 namespace Chinook.API.Controllers;
 
-public class GenresController : ControllerBase
+public class GenresController : ODataController
 {
     private readonly IChinookSupervisor _chinookSupervisor;
 
     public GenresController(IChinookSupervisor chinookSupervisor) => _chinookSupervisor = chinookSupervisor;
 
     [EnableQuery]
+    [HttpGet("odata/Genres")]
     public async Task<ActionResult<List<GenreApiModel>>> Get()
     {
         try
@@ -28,6 +30,7 @@ public class GenresController : ControllerBase
     }
 
     [EnableQuery]
+    [HttpGet("odata/Genres({id})")]
     public async Task<ActionResult<GenreApiModel>> Get([FromRoute] int id)
     {
         try
@@ -41,6 +44,7 @@ public class GenresController : ControllerBase
         }
     }
     
+    [HttpPost("odata/Genres")]
     public async Task<ActionResult<GenreApiModel>> Post([FromBody] GenreApiModel input)
     {
         try
@@ -54,6 +58,7 @@ public class GenresController : ControllerBase
         }
     }
     
+    [HttpPut("odata/Genres({id})")]
     public async Task<ActionResult<GenreApiModel>> Put([FromRoute] int id, [FromBody] GenreApiModel input)
     {
         try
@@ -67,6 +72,7 @@ public class GenresController : ControllerBase
         }
     }
     
+    [HttpPatch("odata/Genres({id})")]
     public async Task<ActionResult> Patch([FromRoute] int id, [FromBody] Delta<CustomerApiModel> delta)
     {
         // var customer = db.Customers.SingleOrDefault(d => d.Id == key);
@@ -85,6 +91,7 @@ public class GenresController : ControllerBase
         return Ok();
     }
     
+    [HttpDelete("odata/Genres({id})")]
     public async Task<ActionResult> Delete([FromRoute] int id)
     {
         try

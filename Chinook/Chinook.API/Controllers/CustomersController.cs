@@ -4,16 +4,18 @@ using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Deltas;
 using Microsoft.AspNetCore.OData.Query;
+using Microsoft.AspNetCore.OData.Routing.Controllers;
 
 namespace Chinook.API.Controllers;
 
-public class CustomersController : ControllerBase
+public class CustomersController : ODataController
 {
     private readonly IChinookSupervisor _chinookSupervisor;
 
     public CustomersController(IChinookSupervisor chinookSupervisor) => _chinookSupervisor = chinookSupervisor;
     
     [EnableQuery]
+    [HttpGet("odata/Customers")]
     public async Task<ActionResult<List<CustomerApiModel>>> Get()
     {
         try
@@ -28,6 +30,7 @@ public class CustomersController : ControllerBase
     }
 
     [EnableQuery]
+    [HttpGet("odata/Customers({id})")]
     public async Task<ActionResult<CustomerApiModel>> Get([FromRoute] int id)
     {
         try
@@ -41,6 +44,7 @@ public class CustomersController : ControllerBase
         }
     }
     
+    [HttpPost("odata/Customers")]
     public async Task<ActionResult<CustomerApiModel>> Post([FromBody] CustomerApiModel input)
     {
         try
@@ -54,6 +58,7 @@ public class CustomersController : ControllerBase
         }
     }
     
+    [HttpPut("odata/Customers({id})")]
     public async Task<ActionResult<CustomerApiModel>> Put([FromRoute] int id, [FromBody] CustomerApiModel input)
     {
         try
@@ -67,6 +72,7 @@ public class CustomersController : ControllerBase
         }
     }
     
+    [HttpPatch("odata/Customers({id})")]
     public async Task<ActionResult> Patch([FromRoute] int id, [FromBody] Delta<CustomerApiModel> delta)
     {
         // var customer = db.Customers.SingleOrDefault(d => d.Id == key);
@@ -85,6 +91,7 @@ public class CustomersController : ControllerBase
         return Ok();
     }
     
+    [HttpDelete("odata/Customers({id})")]
     public async Task<ActionResult> Delete([FromRoute] int id)
     {
         try
