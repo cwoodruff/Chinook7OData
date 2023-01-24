@@ -19,7 +19,7 @@ builder.Services.AddControllers().AddOData(options =>
     options.AddRouteComponents(
         "odata",
         GetEdmModel());
-    options.RouteOptions.EnableControllerNameCaseInsensitive = true;
+    //options.RouteOptions.EnableControllerNameCaseInsensitive = true;
 });
 
 var app = builder.Build();

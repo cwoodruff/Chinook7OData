@@ -1,6 +1,5 @@
 ﻿using Chinook.Domain.ApiModels;
 using Chinook.Domain.Supervisor;
-using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Deltas;
 using Microsoft.AspNetCore.OData.Query;
@@ -23,9 +22,9 @@ public class TracksController : ODataController
             var tracks = await _chinookSupervisor.GetAllTrack();
             return Ok(tracks);
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            return NotFound();
+            return NotFound(ex);
         }
     }
 
@@ -38,9 +37,9 @@ public class TracksController : ODataController
             var track = await _chinookSupervisor.GetTrackById(id);
             return Ok(track);
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            return NotFound();
+            return NotFound(ex);
         }
     }
     
@@ -52,9 +51,9 @@ public class TracksController : ODataController
             var track = await _chinookSupervisor.AddTrack(input);
             return Ok(track);
         }
-        catch (ValidationException ex)
+        catch (Exception ex)
         {
-            return BadRequest(ex.Errors);
+            return NotFound(ex);
         }
     }
     
@@ -66,31 +65,12 @@ public class TracksController : ODataController
             var track = await _chinookSupervisor.UpdateTrack(input);
             return Ok(track);
         }
-        catch (ValidationException ex)
+        catch (Exception ex)
         {
-            return BadRequest(ex.Errors);
+            return NotFound(ex);
         }
     }
-    
-    [HttpPatch("odata/Tracks({id})")]
-    public async Task<ActionResult> Patch([FromRoute] int id, [FromBody] Delta<CustomerApiModel> delta)
-    {
-        // var customer = db.Customers.SingleOrDefault(d => d.Id == key);
-        //
-        // if (customer == null)
-        // {
-        //     return NotFound();
-        // }
-        //
-        // delta.Patch(customer);
-        //
-        // db.SaveChanges();
-        //
-        // return Updated(customer);
-        
-        return Ok();
-    }
-    
+
     [HttpDelete("odata/Tracks({id})")]
     public async Task<ActionResult> Delete([FromRoute] int id)
     {
@@ -99,9 +79,9 @@ public class TracksController : ODataController
             await _chinookSupervisor.DeleteTrack(id);
             return Ok();
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            return NotFound();
+            return NotFound(ex);
         }
     }
 }

@@ -1,6 +1,5 @@
 ﻿using Chinook.Domain.ApiModels;
 using Chinook.Domain.Supervisor;
-using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Deltas;
 using Microsoft.AspNetCore.OData.Query;
@@ -14,7 +13,7 @@ public class InvoicesController : ODataController
 
     public InvoicesController(IChinookSupervisor chinookSupervisor) => _chinookSupervisor = chinookSupervisor;
 
-    [EnableQuery(PageSize = 1)]
+    [EnableQuery]
     [HttpGet("odata/Invoices")]
     public async Task<ActionResult<List<InvoiceApiModel>>> Get()
     {
@@ -23,9 +22,9 @@ public class InvoicesController : ODataController
             var invoices = await _chinookSupervisor.GetAllInvoice();
             return Ok(invoices);
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            return NotFound();
+            return NotFound(ex);
         }
     }
 
@@ -38,9 +37,9 @@ public class InvoicesController : ODataController
             var invoice = await _chinookSupervisor.GetInvoiceById(id);
             return Ok(invoice);
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            return NotFound();
+            return NotFound(ex);
         }
     }
     
@@ -52,9 +51,9 @@ public class InvoicesController : ODataController
             var invoice = await _chinookSupervisor.AddInvoice(input);
             return Ok(invoice);
         }
-        catch (ValidationException ex)
+        catch (Exception ex)
         {
-            return BadRequest(ex.Errors);
+            return NotFound(ex);
         }
     }
     
@@ -66,31 +65,12 @@ public class InvoicesController : ODataController
             var invoice = await _chinookSupervisor.UpdateInvoice(input);
             return Ok(invoice);
         }
-        catch (ValidationException ex)
+        catch (Exception ex)
         {
-            return BadRequest(ex.Errors);
+            return NotFound(ex);
         }
     }
-    
-    [HttpPatch("odata/Invoices({id})")]
-    public async Task<ActionResult> Patch([FromRoute] int id, [FromBody] Delta<CustomerApiModel> delta)
-    {
-        // var customer = db.Customers.SingleOrDefault(d => d.Id == key);
-        //
-        // if (customer == null)
-        // {
-        //     return NotFound();
-        // }
-        //
-        // delta.Patch(customer);
-        //
-        // db.SaveChanges();
-        //
-        // return Updated(customer);
-        
-        return Ok();
-    }
-    
+
     [HttpDelete("odata/Invoices({id})")]
     public async Task<ActionResult> Delete([FromRoute] int id)
     {
@@ -99,9 +79,9 @@ public class InvoicesController : ODataController
             await _chinookSupervisor.DeleteInvoice(id);
             return Ok();
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            return NotFound();
+            return NotFound(ex);
         }
     }
 }

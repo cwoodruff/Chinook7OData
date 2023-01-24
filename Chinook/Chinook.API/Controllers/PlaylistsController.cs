@@ -1,6 +1,5 @@
 ﻿using Chinook.Domain.ApiModels;
 using Chinook.Domain.Supervisor;
-using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Deltas;
 using Microsoft.AspNetCore.OData.Query;
@@ -15,17 +14,17 @@ public class PlaylistsController : ODataController
     public PlaylistsController(IChinookSupervisor chinookSupervisor) => _chinookSupervisor = chinookSupervisor;
 
     [EnableQuery]
-    [HttpGet("odata/Playlists")]
-    public async Task<ActionResult<List<PlaylistApiModel>>> Get()
+    //[HttpGet("odata/Playlists")]
+    public async Task<ActionResult<List<PlaylistApiModel>>> GetAll()
     {
         try
         {
             var playlists = await _chinookSupervisor.GetAllPlaylist();
             return Ok(playlists);
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            return NotFound();
+            return NotFound(ex);
         }
     }
 
@@ -38,9 +37,9 @@ public class PlaylistsController : ODataController
             var playlist = await _chinookSupervisor.GetPlaylistById(id);
             return Ok(playlist);
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            return NotFound();
+            return NotFound(ex);
         }
     }
     
@@ -52,9 +51,9 @@ public class PlaylistsController : ODataController
             var playlist = await _chinookSupervisor.AddPlaylist(input);
             return Ok(playlist);
         }
-        catch (ValidationException ex)
+        catch (Exception ex)
         {
-            return BadRequest(ex.Errors);
+            return NotFound(ex);
         }
     }
     
@@ -66,29 +65,10 @@ public class PlaylistsController : ODataController
             var playlist = await _chinookSupervisor.UpdatePlaylist(input);
             return Ok(playlist);
         }
-        catch (ValidationException ex)
+        catch (Exception ex)
         {
-            return BadRequest(ex.Errors);
+            return NotFound(ex);
         }
-    }
-    
-    [HttpPatch("odata/Playlists({id})")]
-    public async Task<ActionResult> Patch([FromRoute] int id, [FromBody] Delta<CustomerApiModel> delta)
-    {
-        // var customer = db.Customers.SingleOrDefault(d => d.Id == key);
-        //
-        // if (customer == null)
-        // {
-        //     return NotFound();
-        // }
-        //
-        // delta.Patch(customer);
-        //
-        // db.SaveChanges();
-        //
-        // return Updated(customer);
-        
-        return Ok();
     }
 
     [HttpDelete("odata/Playlists({id})")]
@@ -99,9 +79,9 @@ public class PlaylistsController : ODataController
             await _chinookSupervisor.DeletePlaylist(id);
             return Ok();
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            return NotFound();
+            return NotFound(ex);
         }
     }
 }
