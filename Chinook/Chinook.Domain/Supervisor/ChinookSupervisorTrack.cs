@@ -1,113 +1,70 @@
-using Chinook.Domain.Extensions;
 using FluentValidation;
-using Chinook.Domain.ApiModels;
+using Chinook.Domain.Entities;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace Chinook.Domain.Supervisor;
 
 public partial class ChinookSupervisor
 {
-    public async Task<List<TrackApiModel>> GetAllTrack()
+    public async Task<List<Track>> GetAllTrack()
     {
         var tracks = await _trackRepository.GetAll();
-        var trackApiModels = tracks.ConvertAll();
-        var newPagedList = new List<TrackApiModel>(trackApiModels.ToList());
-        return newPagedList;
+        foreach (var track in tracks)
+        {
+            var cacheEntryOptions =
+                new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromSeconds(604800))
+                    .AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(604800);
+            ;
+            _cache.Set(string.Concat("Track-", track.Id), track, (TimeSpan)cacheEntryOptions);
+        }
+        return tracks;
     }
 
-    public async Task<TrackApiModel?> GetTrackById(int id)
+    public async Task<Track?> GetTrackById(int id)
     {
-        var track = await _trackRepository.GetById(id);
-        if (track == null) return null;
-        var trackApiModel = track.Convert();
-        trackApiModel.Genre = await GetGenreById(trackApiModel.GenreId);
-        trackApiModel.Album = await GetAlbumById(trackApiModel.AlbumId);
-        trackApiModel.MediaType = await GetMediaTypeById(trackApiModel.MediaTypeId);
-        if (trackApiModel.Album != null) trackApiModel.AlbumName = trackApiModel.Album.Title;
+        var trackCached = _cache.Get<Track>(string.Concat("Track-", id));
 
-        if (trackApiModel.MediaType != null) trackApiModel.MediaTypeName = trackApiModel.MediaType.Name;
-        if (trackApiModel.Genre != null) trackApiModel.GenreName = trackApiModel.Genre.Name;
-        return trackApiModel;
+        if (trackCached != null)
+        {
+            return trackCached;
+        }
+        else
+        {
+            var track = await _trackRepository.GetById(id);
+            if (track == null) return null;
+
+            var cacheEntryOptions =
+                new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromSeconds(604800))
+                    .AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(604800);
+            ;
+            _cache.Set(string.Concat("Track-", track.Id), track, (TimeSpan)cacheEntryOptions);
+            return track;
+        }
     }
 
-    public async Task<TrackApiModel> AddTrack(TrackApiModel newTrackApiModel)
+    public async Task<Track> AddTrack(Track newTrack)
     {
-        await _trackValidator.ValidateAndThrowAsync(newTrackApiModel);
-
-        var track = newTrackApiModel.Convert();
-
-        await _trackRepository.Add(track);
-        newTrackApiModel.Id = track.Id;
-        return newTrackApiModel;
+        await _trackValidator.ValidateAndThrowAsync(newTrack);
+        return await _trackRepository.Add(newTrack);
     }
 
-    public async Task<bool> UpdateTrack(TrackApiModel trackApiModel)
+    public async Task<bool> UpdateTrack(Track track)
     {
-        await _trackValidator.ValidateAndThrowAsync(trackApiModel);
-
-        var track = await _trackRepository.GetById(trackApiModel.Id);
-
-        if (track == null) return false;
-        track.Id = trackApiModel.Id;
-        track.Name = trackApiModel.Name;
-        track.AlbumId = trackApiModel.AlbumId;
-        track.MediaTypeId = trackApiModel.MediaTypeId;
-        track.GenreId = trackApiModel.GenreId;
-        track.Composer = trackApiModel.Composer ?? string.Empty;
-        track.Milliseconds = trackApiModel.Milliseconds;
-        track.Bytes = trackApiModel.Bytes;
-        track.UnitPrice = trackApiModel.UnitPrice;
-
+        await _trackValidator.ValidateAndThrowAsync(track);
         return await _trackRepository.Update(track);
     }
 
-    public Task<bool> DeleteTrack(int id)
-        => _trackRepository.Delete(id);
+    public Task<bool> DeleteTrack(int id) => _trackRepository.Delete(id);
     
-    public async Task<List<TrackApiModel>?> GetTrackByAlbumId(int id)
-    {
-        var tracks = await _trackRepository.GetByAlbumId(id);
-        var trackApiModels = tracks.ConvertAll();
-        var newPagedList = new List<TrackApiModel>(trackApiModels.ToList());
-        return newPagedList;
-    }
+    public async Task<List<Track>?> GetTrackByAlbumId(int id) => await _trackRepository.GetByAlbumId(id);
 
-    public async Task<List<TrackApiModel>> GetTrackByGenreId(int id)
-    {
-        var tracks = await _trackRepository.GetByGenreId(id);
-        var trackApiModels = tracks.ConvertAll();
-        var newPagedList = new List<TrackApiModel>(trackApiModels.ToList());
-        return newPagedList;
-    }
+    public async Task<List<Track>> GetTrackByGenreId(int id) => await _trackRepository.GetByGenreId(id);
 
-    public async Task<List<TrackApiModel>> GetTrackByMediaTypeId(int id)
-    {
-        var tracks = await _trackRepository.GetByMediaTypeId(id);
-        var trackApiModels = tracks.ConvertAll();
-        var newPagedList = new List<TrackApiModel>(trackApiModels.ToList());
-        return newPagedList;
-    }
+    public async Task<List<Track>> GetTrackByMediaTypeId(int id) => await _trackRepository.GetByMediaTypeId(id);
 
-    public async Task<List<TrackApiModel>> GetTrackByPlaylistId(int id)
-    {
-        var tracks = await _trackRepository.GetByPlaylistId(id);
-        var trackApiModels = tracks.ConvertAll();
-        var newPagedList = new List<TrackApiModel>(trackApiModels.ToList());
-        return newPagedList;
-    }
+    public async Task<List<Track>> GetTrackByPlaylistId(int id) => await _trackRepository.GetByPlaylistId(id);
 
-    public async Task<List<TrackApiModel>> GetTrackByArtistId(int id)
-    {
-        var tracks = await _trackRepository.GetByArtistId(id);
-        var trackApiModels = tracks.ConvertAll();
-        var newPagedList = new List<TrackApiModel>(trackApiModels.ToList());
-        return newPagedList;
-    }
+    public async Task<List<Track>> GetTrackByArtistId(int id) => await _trackRepository.GetByArtistId(id);
 
-    public async Task<List<TrackApiModel>> GetTrackByInvoiceId(int id)
-    {
-        var tracks = await _trackRepository.GetByInvoiceId(id);
-        var trackApiModels = tracks.ConvertAll();
-        var newPagedList = new List<TrackApiModel>(trackApiModels.ToList());
-        return newPagedList;
-    }
+    public async Task<List<Track>> GetTrackByInvoiceId(int id) => await _trackRepository.GetByInvoiceId(id);
 }

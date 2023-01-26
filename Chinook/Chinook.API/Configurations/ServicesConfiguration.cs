@@ -1,5 +1,5 @@
 ﻿using Chinook.Data.Repositories;
-using Chinook.Domain.ApiModels;
+using Chinook.Domain.Entities;
 using Chinook.Domain.Repositories;
 using Chinook.Domain.Supervisor;
 using Chinook.Domain.Validation;
@@ -32,16 +32,16 @@ public static class ServicesConfiguration
     public static void ConfigureValidators(this IServiceCollection services)
     {
         services.AddFluentValidationAutoValidation()
-            .AddTransient<IValidator<AlbumApiModel>, AlbumValidator>()
-            .AddTransient<IValidator<ArtistApiModel>, ArtistValidator>()
-            .AddTransient<IValidator<CustomerApiModel>, CustomerValidator>()
-            .AddTransient<IValidator<EmployeeApiModel>, EmployeeValidator>()
-            .AddTransient<IValidator<GenreApiModel>, GenreValidator>()
-            .AddTransient<IValidator<InvoiceApiModel>, InvoiceValidator>()
-            .AddTransient<IValidator<InvoiceLineApiModel>, InvoiceLineValidator>()
-            .AddTransient<IValidator<MediaTypeApiModel>, MediaTypeValidator>()
-            .AddTransient<IValidator<PlaylistApiModel>, PlaylistValidator>()
-            .AddTransient<IValidator<TrackApiModel>, TrackValidator>();
+            .AddTransient<IValidator<Album>, AlbumValidator>()
+            .AddTransient<IValidator<Artist>, ArtistValidator>()
+            .AddTransient<IValidator<Customer>, CustomerValidator>()
+            .AddTransient<IValidator<Employee>, EmployeeValidator>()
+            .AddTransient<IValidator<Genre>, GenreValidator>()
+            .AddTransient<IValidator<Invoice>, InvoiceValidator>()
+            .AddTransient<IValidator<InvoiceLine>, InvoiceLineValidator>()
+            .AddTransient<IValidator<MediaType>, MediaTypeValidator>()
+            .AddTransient<IValidator<Playlist>, PlaylistValidator>()
+            .AddTransient<IValidator<Track>, TrackValidator>();
     }
     
     public static void AddCaching(this IServiceCollection services,

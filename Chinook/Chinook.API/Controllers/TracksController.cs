@@ -1,7 +1,6 @@
-﻿using Chinook.Domain.ApiModels;
+﻿using Chinook.Domain.Entities;
 using Chinook.Domain.Supervisor;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.OData.Deltas;
 using Microsoft.AspNetCore.OData.Query;
 using Microsoft.AspNetCore.OData.Routing.Controllers;
 
@@ -15,7 +14,7 @@ public class TracksController : ODataController
 
     [EnableQuery]
     [HttpGet("odata/Tracks")]
-    public async Task<ActionResult<List<TrackApiModel>>> Get()
+    public async Task<ActionResult<List<Track>>> Get()
     {
         try
         {
@@ -30,7 +29,7 @@ public class TracksController : ODataController
 
     [EnableQuery]
     [HttpGet("odata/Tracks({id})")]
-    public async Task<ActionResult<TrackApiModel>> Get([FromRoute] int id)
+    public async Task<ActionResult<Track>> Get([FromRoute] int id)
     {
         try
         {
@@ -44,7 +43,7 @@ public class TracksController : ODataController
     }
     
     [HttpPost("odata/Tracks")]
-    public async Task<ActionResult<TrackApiModel>> Post([FromBody] TrackApiModel input)
+    public async Task<ActionResult<Track>> Post([FromBody] Track input)
     {
         try
         {
@@ -58,7 +57,7 @@ public class TracksController : ODataController
     }
     
     [HttpPut("odata/Tracks({id})")]
-    public async Task<ActionResult<TrackApiModel>> Put([FromRoute] int id, [FromBody] TrackApiModel input)
+    public async Task<ActionResult<Track>> Put([FromRoute] int id, [FromBody] Track input)
     {
         try
         {

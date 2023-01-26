@@ -1,7 +1,6 @@
-﻿using Chinook.Domain.ApiModels;
+﻿using Chinook.Domain.Entities;
 using Chinook.Domain.Supervisor;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.OData.Deltas;
 using Microsoft.AspNetCore.OData.Query;
 using Microsoft.AspNetCore.OData.Routing.Controllers;
 
@@ -15,7 +14,7 @@ public class PlaylistsController : ODataController
 
     [EnableQuery]
     //[HttpGet("odata/Playlists")]
-    public async Task<ActionResult<List<PlaylistApiModel>>> GetAll()
+    public async Task<ActionResult<List<Playlist>>> GetAll()
     {
         try
         {
@@ -30,7 +29,7 @@ public class PlaylistsController : ODataController
 
     [EnableQuery]
     [HttpGet("odata/Playlists({id})")]
-    public async Task<ActionResult<PlaylistApiModel>> Get([FromRoute] int id)
+    public async Task<ActionResult<Playlist>> Get([FromRoute] int id)
     {
         try
         {
@@ -44,7 +43,7 @@ public class PlaylistsController : ODataController
     }
     
     [HttpPost("odata/Playlists")]
-    public async Task<ActionResult<PlaylistApiModel>> Post([FromBody] PlaylistApiModel input)
+    public async Task<ActionResult<Playlist>> Post([FromBody] Playlist input)
     {
         try
         {
@@ -58,7 +57,7 @@ public class PlaylistsController : ODataController
     }
     
     [HttpPut("odata/Playlists({id})")]
-    public async Task<ActionResult<PlaylistApiModel>> Put([FromRoute] int id, [FromBody] PlaylistApiModel input)
+    public async Task<ActionResult<Playlist>> Put([FromRoute] int id, [FromBody] Playlist input)
     {
         try
         {

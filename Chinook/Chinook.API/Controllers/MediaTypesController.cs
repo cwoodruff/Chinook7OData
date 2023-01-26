@@ -1,7 +1,6 @@
-﻿using Chinook.Domain.ApiModels;
+﻿using Chinook.Domain.Entities;
 using Chinook.Domain.Supervisor;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.OData.Deltas;
 using Microsoft.AspNetCore.OData.Query;
 using Microsoft.AspNetCore.OData.Routing.Controllers;
 
@@ -15,7 +14,7 @@ public class MediaTypesController : ODataController
 
     [EnableQuery]
     [HttpGet("odata/MediaTypes")]
-    public async Task<ActionResult<List<MediaTypeApiModel>>> Get()
+    public async Task<ActionResult<List<MediaType>>> Get()
     {
         try
         {
@@ -30,7 +29,7 @@ public class MediaTypesController : ODataController
 
     [EnableQuery]
     [HttpGet("odata/MediaTypes({id})")]
-    public async Task<ActionResult<MediaTypeApiModel>> Get([FromRoute] int id)
+    public async Task<ActionResult<MediaType>> Get([FromRoute] int id)
     {
         try
         {
@@ -44,7 +43,7 @@ public class MediaTypesController : ODataController
     }
     
     [HttpPost("odata/MediaTypes")]
-    public async Task<ActionResult<MediaTypeApiModel>> Post([FromBody] MediaTypeApiModel input)
+    public async Task<ActionResult<MediaType>> Post([FromBody] MediaType input)
     {
         try
         {
@@ -58,7 +57,7 @@ public class MediaTypesController : ODataController
     }
     
     [HttpPut("odata/MediaTypes({id})")]
-    public async Task<ActionResult<MediaTypeApiModel>> Put([FromRoute] int id, [FromBody] MediaTypeApiModel input)
+    public async Task<ActionResult<MediaType>> Put([FromRoute] int id, [FromBody] MediaType input)
     {
         try
         {

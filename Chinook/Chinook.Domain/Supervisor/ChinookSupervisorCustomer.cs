@@ -1,5 +1,4 @@
-using Chinook.Domain.ApiModels;
-using Chinook.Domain.Extensions;
+using Chinook.Domain.Entities;
 using FluentValidation;
 using Microsoft.Extensions.Caching.Memory;
 
@@ -7,58 +6,9 @@ namespace Chinook.Domain.Supervisor;
 
 public partial class ChinookSupervisor
 {
-    public async Task<List<CustomerApiModel>> GetAllCustomer()
+    public async Task<List<Customer>> GetAllCustomer()
     {
         var customers = await _customerRepository.GetAll();
-        var customerApiModels = customers.ConvertAll();
-
-        foreach (var customer in customerApiModels)
-        {
-            var cacheEntryOptions =
-                new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromSeconds(604800))
-                    .AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(604800);
-            ;
-            _cache.Set(string.Concat("Customer-", customer.Id), customer, (TimeSpan)cacheEntryOptions);
-        }
-        var newPagedList = new List<CustomerApiModel>(customerApiModels.ToList());
-        return newPagedList;
-    }
-
-    public async Task<CustomerApiModel> GetCustomerById(int id)
-    {
-        var customerApiModelCached = _cache.Get<CustomerApiModel>(string.Concat("Customer-", id));
-
-        if (customerApiModelCached != null)
-        {
-            return customerApiModelCached;
-        }
-        else
-        {
-            var customer = await _customerRepository.GetById(id);
-            if (customer == null) return null!;
-            var customerApiModel = customer.Convert();
-            //customerApiModel.Invoices = (await GetInvoiceByCustomerId(customerApiModel.Id)).ToList();
-            customerApiModel.SupportRep =
-                await GetEmployeeById(customerApiModel.SupportRepId);
-            if (customerApiModel.SupportRep != null)
-                customerApiModel.SupportRepName =
-                    $"{customerApiModel.SupportRep.LastName}, {customerApiModel.SupportRep.FirstName}";
-
-            var cacheEntryOptions =
-                new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromSeconds(604800))
-                    .AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(604800);
-            ;
-            _cache.Set(string.Concat("Customer-", customerApiModel.Id), customerApiModel,
-                (TimeSpan)cacheEntryOptions);
-
-            return customerApiModel;
-        }
-    }
-
-    public async Task<List<CustomerApiModel>> GetCustomerBySupportRepId(int id)
-    {
-        var customers = await _customerRepository.GetBySupportRepId(id);
-        var customerApiModels = customers.ConvertAll();
 
         foreach (var customer in customers)
         {
@@ -68,44 +18,57 @@ public partial class ChinookSupervisor
             ;
             _cache.Set(string.Concat("Customer-", customer.Id), customer, (TimeSpan)cacheEntryOptions);
         }
-        var newPagedList = new List<CustomerApiModel>(customerApiModels.ToList());
-        return newPagedList;
+        return customers;
     }
 
-    public async Task<CustomerApiModel> AddCustomer(CustomerApiModel newCustomerApiModel)
+    public async Task<Customer> GetCustomerById(int id)
     {
-        await _customerValidator.ValidateAndThrowAsync(newCustomerApiModel);
+        var customerCached = _cache.Get<Customer>(string.Concat("Customer-", id));
 
-        var customer = newCustomerApiModel.Convert();
-
-        customer = await _customerRepository.Add(customer);
-        newCustomerApiModel.Id = customer.Id;
-        return newCustomerApiModel;
+        if (customerCached != null)
+        {
+            return customerCached;
+        }
+        else
+        {
+            var customer = await _customerRepository.GetById(id);
+            if (customer == null) return null!;
+            customer.SupportRep =
+                await GetEmployeeById(customer.SupportRepId);
+            var cacheEntryOptions =
+                new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromSeconds(604800))
+                    .AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(604800);
+            _cache.Set(string.Concat("Customer-", customer.Id), customer, (TimeSpan)cacheEntryOptions);
+            return customer;
+        }
     }
 
-    public async Task<bool> UpdateCustomer(CustomerApiModel customerApiModel)
+    public async Task<List<Customer>> GetCustomerBySupportRepId(int id)
     {
-        await _customerValidator.ValidateAndThrowAsync(customerApiModel);
+        var customers = await _customerRepository.GetBySupportRepId(id);
 
-        var customer = await _customerRepository.GetById(customerApiModel.Id);
+        foreach (var customer in customers)
+        {
+            var cacheEntryOptions =
+                new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromSeconds(604800))
+                    .AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(604800);
+            ;
+            _cache.Set(string.Concat("Customer-", customer.Id), customer, (TimeSpan)cacheEntryOptions);
+        }
+        return customers;
+    }
 
-        if (customer == null) return false;
-        customer.FirstName = customerApiModel.FirstName;
-        customer.LastName = customerApiModel.LastName;
-        customer.Company = customerApiModel.Company ?? string.Empty;
-        customer.Address = customerApiModel.Address ?? string.Empty;
-        customer.City = customerApiModel.City ?? string.Empty;
-        customer.State = customerApiModel.State ?? string.Empty;
-        customer.Country = customerApiModel.Country ?? string.Empty;
-        customer.PostalCode = customerApiModel.PostalCode ?? string.Empty;
-        customer.Phone = customerApiModel.Phone ?? string.Empty;
-        customer.Fax = customerApiModel.Fax ?? string.Empty;
-        customer.Email = customerApiModel.Email ?? string.Empty;
-        customer.SupportRepId = customerApiModel.SupportRepId;
+    public async Task<Customer> AddCustomer(Customer newCustomer)
+    {
+        await _customerValidator.ValidateAndThrowAsync(newCustomer);
+        return await _customerRepository.Add(newCustomer);;
+    }
 
+    public async Task<bool> UpdateCustomer(Customer customer)
+    {
+        await _customerValidator.ValidateAndThrowAsync(customer);
         return await _customerRepository.Update(customer);
     }
 
-    public Task<bool> DeleteCustomer(int id)
-        => _customerRepository.Delete(id);
+    public Task<bool> DeleteCustomer(int id) => _customerRepository.Delete(id);
 }

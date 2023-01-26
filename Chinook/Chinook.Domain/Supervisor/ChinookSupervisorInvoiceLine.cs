@@ -1,5 +1,4 @@
-using Chinook.Domain.ApiModels;
-using Chinook.Domain.Extensions;
+using Chinook.Domain.Entities;
 using FluentValidation;
 using Microsoft.Extensions.Caching.Memory;
 
@@ -7,12 +6,10 @@ namespace Chinook.Domain.Supervisor;
 
 public partial class ChinookSupervisor
 {
-    public async Task<List<InvoiceLineApiModel>> GetAllInvoiceLine()
+    public async Task<List<InvoiceLine>> GetAllInvoiceLine()
     {
         var invoiceLines = await _invoiceLineRepository.GetAll();
-        var invoiceLineApiModels = invoiceLines.ConvertAll();
-
-        foreach (var invoiceLine in invoiceLineApiModels)
+        foreach (var invoiceLine in invoiceLines)
         {
             var cacheEntryOptions =
                 new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromSeconds(604800))
@@ -20,81 +17,45 @@ public partial class ChinookSupervisor
             ;
             _cache.Set(string.Concat("InvoiceLine-", invoiceLine.Id), invoiceLine, (TimeSpan)cacheEntryOptions);
         }
-        var newPagedList = new List<InvoiceLineApiModel>(invoiceLineApiModels.ToList());
-        return newPagedList;
+        return invoiceLines;
     }
 
-    public async Task<InvoiceLineApiModel> GetInvoiceLineById(int id)
+    public async Task<InvoiceLine> GetInvoiceLineById(int id)
     {
-        var invoiceLineApiModelCached = _cache.Get<InvoiceLineApiModel>(string.Concat("InvoiceLine-", id));
+        var invoiceLineCached = _cache.Get<InvoiceLine>(string.Concat("InvoiceLine-", id));
 
-        if (invoiceLineApiModelCached != null)
+        if (invoiceLineCached != null)
         {
-            return invoiceLineApiModelCached;
+            return invoiceLineCached;
         }
         else
         {
             var invoiceLine = await _invoiceLineRepository.GetById(id);
             if (invoiceLine == null) return null!;
-            var invoiceLineApiModel = invoiceLine.Convert();
-            invoiceLineApiModel.Track = await GetTrackById(invoiceLineApiModel.TrackId);
-            invoiceLineApiModel.Invoice = await GetInvoiceById(invoiceLineApiModel.InvoiceId);
-            if (invoiceLineApiModel.Track != null) invoiceLineApiModel.TrackName = invoiceLineApiModel.Track.Name;
-
             var cacheEntryOptions =
                 new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromSeconds(604800))
                     .AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(604800);
             ;
-            _cache.Set(string.Concat("InvoiceLine-", invoiceLineApiModel.Id), invoiceLineApiModel,
-                (TimeSpan)cacheEntryOptions);
-
-            return invoiceLineApiModel;
+            _cache.Set(string.Concat("InvoiceLine-", invoiceLine.Id), invoiceLine, (TimeSpan)cacheEntryOptions);
+            return invoiceLine;
         }
     }
 
-    public async Task<List<InvoiceLineApiModel>> GetInvoiceLineByInvoiceId(int id)
+    public async Task<InvoiceLine> AddInvoiceLine(InvoiceLine newInvoiceLine)
     {
-        var invoiceLines = await _invoiceLineRepository.GetByInvoiceId(id);
-        var invoiceLineApiModels = invoiceLines.ConvertAll();
-        var newPagedList = new List<InvoiceLineApiModel>(invoiceLineApiModels.ToList());
-        return newPagedList;
+        await _invoiceLineValidator.ValidateAndThrowAsync(newInvoiceLine);
+        return await _invoiceLineRepository.Add(newInvoiceLine);
     }
 
-    public async Task<List<InvoiceLineApiModel>> GetInvoiceLineByTrackId(int id)
+    public async Task<bool> UpdateInvoiceLine(InvoiceLine invoiceLine)
     {
-        var invoiceLines = await _invoiceLineRepository.GetByTrackId(id);
-        var invoiceLineApiModels = invoiceLines.ConvertAll();
-        var newPagedList = new List<InvoiceLineApiModel>(invoiceLineApiModels.ToList());
-        return newPagedList;
-    }
-
-    public async Task<InvoiceLineApiModel> AddInvoiceLine(InvoiceLineApiModel newInvoiceLineApiModel)
-    {
-        await _invoiceLineValidator.ValidateAndThrowAsync(newInvoiceLineApiModel);
-
-        var invoiceLine = newInvoiceLineApiModel.Convert();
-
-        invoiceLine = await _invoiceLineRepository.Add(invoiceLine);
-        newInvoiceLineApiModel.Id = invoiceLine.Id;
-        return newInvoiceLineApiModel;
-    }
-
-    public async Task<bool> UpdateInvoiceLine(InvoiceLineApiModel invoiceLineApiModel)
-    {
-        await _invoiceLineValidator.ValidateAndThrowAsync(invoiceLineApiModel);
-
-        var invoiceLine = await _invoiceLineRepository.GetById(invoiceLineApiModel.InvoiceId);
-
-        if (invoiceLine == null) return false;
-        invoiceLine.Id = invoiceLineApiModel.Id;
-        invoiceLine.InvoiceId = invoiceLineApiModel.InvoiceId;
-        invoiceLine.TrackId = invoiceLineApiModel.TrackId;
-        invoiceLine.UnitPrice = invoiceLineApiModel.UnitPrice;
-        invoiceLine.Quantity = invoiceLineApiModel.Quantity;
-
+        await _invoiceLineValidator.ValidateAndThrowAsync(invoiceLine);
         return await _invoiceLineRepository.Update(invoiceLine);
     }
 
-    public Task<bool> DeleteInvoiceLine(int id)
-        => _invoiceLineRepository.Delete(id);
+    public Task<bool> DeleteInvoiceLine(int id) => _invoiceLineRepository.Delete(id);
+    
+    public async Task<List<InvoiceLine>> GetInvoiceLineByInvoiceId(int id) => await _invoiceLineRepository.GetByInvoiceId(id);
+
+    public async Task<List<InvoiceLine>> GetInvoiceLineByTrackId(int id) => await _invoiceLineRepository.GetByTrackId(id);
 }

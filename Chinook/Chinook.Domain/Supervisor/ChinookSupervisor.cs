@@ -1,4 +1,4 @@
-﻿using Chinook.Domain.ApiModels;
+﻿using Chinook.Domain.Entities;
 using Chinook.Domain.Repositories;
 using FluentValidation;
 using Microsoft.Extensions.Caching.Memory;
@@ -18,16 +18,16 @@ public partial class ChinookSupervisor : IChinookSupervisor
     private readonly IPlaylistRepository _playlistRepository;
     private readonly ITrackRepository _trackRepository;
 
-    private readonly IValidator<AlbumApiModel> _albumValidator;
-    private readonly IValidator<ArtistApiModel> _artistValidator;
-    private readonly IValidator<CustomerApiModel> _customerValidator;
-    private readonly IValidator<EmployeeApiModel> _employeeValidator;
-    private readonly IValidator<GenreApiModel> _genreValidator;
-    private readonly IValidator<InvoiceApiModel> _invoiceValidator;
-    private readonly IValidator<InvoiceLineApiModel> _invoiceLineValidator;
-    private readonly IValidator<MediaTypeApiModel> _mediaTypeValidator;
-    private readonly IValidator<PlaylistApiModel> _playlistValidator;
-    private readonly IValidator<TrackApiModel> _trackValidator;
+    private readonly IValidator<Album> _albumValidator;
+    private readonly IValidator<Artist> _artistValidator;
+    private readonly IValidator<Customer> _customerValidator;
+    private readonly IValidator<Employee> _employeeValidator;
+    private readonly IValidator<Genre> _genreValidator;
+    private readonly IValidator<Invoice> _invoiceValidator;
+    private readonly IValidator<InvoiceLine> _invoiceLineValidator;
+    private readonly IValidator<MediaType> _mediaTypeValidator;
+    private readonly IValidator<Playlist> _playlistValidator;
+    private readonly IValidator<Track> _trackValidator;
 
     private readonly IMemoryCache _cache;
 
@@ -41,16 +41,16 @@ public partial class ChinookSupervisor : IChinookSupervisor
         IMediaTypeRepository mediaTypeRepository,
         IPlaylistRepository playlistRepository,
         ITrackRepository trackRepository,
-        IValidator<AlbumApiModel> albumValidator,
-        IValidator<ArtistApiModel> artistValidator,
-        IValidator<CustomerApiModel> customerValidator,
-        IValidator<EmployeeApiModel> employeeValidator,
-        IValidator<GenreApiModel> genreValidator,
-        IValidator<InvoiceApiModel> invoiceValidator,
-        IValidator<InvoiceLineApiModel> invoiceLineValidator,
-        IValidator<MediaTypeApiModel> mediaTypeValidator,
-        IValidator<PlaylistApiModel> playlistValidator,
-        IValidator<TrackApiModel> trackValidator,
+        IValidator<Album> albumValidator,
+        IValidator<Artist> artistValidator,
+        IValidator<Customer> customerValidator,
+        IValidator<Employee> employeeValidator,
+        IValidator<Genre> genreValidator,
+        IValidator<Invoice> invoiceValidator,
+        IValidator<InvoiceLine> invoiceLineValidator,
+        IValidator<MediaType> mediaTypeValidator,
+        IValidator<Playlist> playlistValidator,
+        IValidator<Track> trackValidator,
         IMemoryCache memoryCache
     )
     {

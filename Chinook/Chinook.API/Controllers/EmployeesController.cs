@@ -1,7 +1,6 @@
-﻿using Chinook.Domain.ApiModels;
+﻿using Chinook.Domain.Entities;
 using Chinook.Domain.Supervisor;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.OData.Deltas;
 using Microsoft.AspNetCore.OData.Query;
 using Microsoft.AspNetCore.OData.Routing.Controllers;
 
@@ -15,7 +14,7 @@ public class EmployeesController : ODataController
 
     [EnableQuery]
     [HttpGet("odata/Employees")]
-    public async Task<ActionResult<List<EmployeeApiModel>>> Get()
+    public async Task<ActionResult<List<Employee>>> Get()
     {
         try
         {
@@ -30,7 +29,7 @@ public class EmployeesController : ODataController
 
     [EnableQuery]
     [HttpGet("odata/Employees({id})")]
-    public async Task<ActionResult<EmployeeApiModel>> Get([FromRoute] int id)
+    public async Task<ActionResult<Employee>> Get([FromRoute] int id)
     {
         try
         {
@@ -44,7 +43,7 @@ public class EmployeesController : ODataController
     }
     
     [HttpPost("odata/Employees")]
-    public async Task<ActionResult<EmployeeApiModel>> Post([FromBody] EmployeeApiModel input)
+    public async Task<ActionResult<Employee>> Post([FromBody] Employee input)
     {
         try
         {
@@ -58,7 +57,7 @@ public class EmployeesController : ODataController
     }
     
     [HttpPut("odata/Employees({id})")]
-    public async Task<ActionResult<EmployeeApiModel>> Put([FromRoute] int id, [FromBody] EmployeeApiModel input)
+    public async Task<ActionResult<Employee>> Put([FromRoute] int id, [FromBody] Employee input)
     {
         try
         {

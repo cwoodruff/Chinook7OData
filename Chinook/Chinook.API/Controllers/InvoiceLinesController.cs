@@ -1,7 +1,6 @@
-﻿using Chinook.Domain.ApiModels;
+﻿using Chinook.Domain.Entities;
 using Chinook.Domain.Supervisor;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.OData.Deltas;
 using Microsoft.AspNetCore.OData.Query;
 using Microsoft.AspNetCore.OData.Routing.Controllers;
 
@@ -15,7 +14,7 @@ public class InvoiceLinesController : ODataController
 
     [EnableQuery]
     [HttpGet("odata/InvoiceLines")]
-    public async Task<ActionResult<List<InvoiceLineApiModel>>> Get()
+    public async Task<ActionResult<List<InvoiceLine>>> Get()
     {
         try
         {
@@ -30,7 +29,7 @@ public class InvoiceLinesController : ODataController
 
     [EnableQuery]
     [HttpGet("odata/InvoiceLines({id})")]
-    public async Task<ActionResult<InvoiceLineApiModel>> Get([FromRoute] int id)
+    public async Task<ActionResult<InvoiceLine>> Get([FromRoute] int id)
     {
         try
         {
@@ -44,7 +43,7 @@ public class InvoiceLinesController : ODataController
     }
     
     [HttpPost("odata/InvoiceLines")]
-    public async Task<ActionResult<InvoiceLineApiModel>> Post([FromBody] InvoiceLineApiModel input)
+    public async Task<ActionResult<InvoiceLine>> Post([FromBody] InvoiceLine input)
     {
         try
         {
@@ -58,7 +57,7 @@ public class InvoiceLinesController : ODataController
     }
     
     [HttpPut("odata/InvoiceLines({id})")]
-    public async Task<ActionResult<InvoiceLineApiModel>> Put([FromRoute] int id, [FromBody] InvoiceLineApiModel input)
+    public async Task<ActionResult<InvoiceLine>> Put([FromRoute] int id, [FromBody] InvoiceLine input)
     {
         try
         {

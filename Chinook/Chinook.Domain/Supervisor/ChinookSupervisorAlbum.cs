@@ -1,5 +1,4 @@
-using Chinook.Domain.ApiModels;
-using Chinook.Domain.Extensions;
+using Chinook.Domain.Entities;
 using FluentValidation;
 using Microsoft.Extensions.Caching.Memory;
 
@@ -7,12 +6,10 @@ namespace Chinook.Domain.Supervisor;
 
 public partial class ChinookSupervisor
 {
-    public async Task<List<AlbumApiModel>> GetAllAlbum() // todo
+    public async Task<List<Album>> GetAllAlbum() // todo
     {
         var albums = await _albumRepository.GetAll();
-        var albumApiModels = albums.ConvertAll<AlbumApiModel>();
-
-        foreach (var album in albumApiModels)
+        foreach (var album in albums)
         {
             var cacheEntryOptions =
                 new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromSeconds(604800))
@@ -20,72 +17,45 @@ public partial class ChinookSupervisor
             ;
             _cache.Set(string.Concat("Album-", album.Id), album, (TimeSpan)cacheEntryOptions);
         }
-
-        var newPagedList = new List<AlbumApiModel>(albumApiModels.ToList());
-        return newPagedList;
+        return albums;
     }
 
-    public async Task<AlbumApiModel?> GetAlbumById(int id)
+    public async Task<Album?> GetAlbumById(int id)
     {
-        var albumApiModelCached = _cache.Get<AlbumApiModel>(string.Concat("Album-", id));
+        var albumCached = _cache.Get<Album>(string.Concat("Album-", id));
 
-        if (albumApiModelCached != null)
+        if (albumCached != null)
         {
-            return albumApiModelCached;
+            return albumCached;
         }
         else
         {
             var album = await _albumRepository.GetById(id);
             if (album == null) return null;
-            var albumApiModel = album.Convert();
-            var result = (_artistRepository.GetById(album.ArtistId)).Result;
-            if (result != null)
-                albumApiModel.ArtistName = result.Name;
-            //albumApiModel.Tracks = (await GetTrackByAlbumId(id) ?? Array.Empty<TrackApiModel>()).ToList();
 
             var cacheEntryOptions =
                 new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromSeconds(604800))
                     .AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(604800);
             ;
-            _cache.Set(string.Concat("Album-", albumApiModel.Id), albumApiModel, (TimeSpan)cacheEntryOptions);
-
-            return albumApiModel;
+            _cache.Set(string.Concat("Album-", album.Id), album, (TimeSpan)cacheEntryOptions);
+            return album;
         }
     }
 
-    public async Task<List<AlbumApiModel>> GetAlbumByArtistId(int id)
+    public async Task<List<Album>> GetAlbumByArtistId(int id) => await _albumRepository.GetByArtistId(id);
+
+    public async Task<Album> AddAlbum(Album newAlbum)
     {
-        var albums = await _albumRepository.GetByArtistId(id);
-        var albumApiModels = albums.ConvertAll<AlbumApiModel>();
-        var newPagedList = new List<AlbumApiModel>(albumApiModels.ToList());
-        return newPagedList;
+        await _albumValidator.ValidateAndThrowAsync(newAlbum);
+
+        return await _albumRepository.Add(newAlbum);
     }
 
-    public async Task<AlbumApiModel> AddAlbum(AlbumApiModel newAlbumApiModel)
+    public async Task<bool> UpdateAlbum(Album album)
     {
-        await _albumValidator.ValidateAndThrowAsync(newAlbumApiModel);
-
-        var album = newAlbumApiModel.Convert();
-
-        album = await _albumRepository.Add(album);
-        newAlbumApiModel.Id = album.Id;
-        return newAlbumApiModel;
-    }
-
-    public async Task<bool> UpdateAlbum(AlbumApiModel albumApiModel)
-    {
-        await _albumValidator.ValidateAndThrowAsync(albumApiModel);
-
-        var album = await _albumRepository.GetById(albumApiModel.Id);
-
-        if (album is null) return false;
-        album.Id = albumApiModel.Id;
-        album.Title = albumApiModel.Title;
-        album.ArtistId = albumApiModel.ArtistId;
-
+        await _albumValidator.ValidateAndThrowAsync(album);
         return await _albumRepository.Update(album);
     }
 
-    public Task<bool> DeleteAlbum(int id)
-        => _albumRepository.Delete(id);
+    public Task<bool> DeleteAlbum(int id) => _albumRepository.Delete(id);
 }

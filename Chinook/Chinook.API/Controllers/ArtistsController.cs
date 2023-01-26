@@ -1,7 +1,6 @@
-﻿using Chinook.Domain.ApiModels;
+﻿using Chinook.Domain.Entities;
 using Chinook.Domain.Supervisor;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.OData.Deltas;
 using Microsoft.AspNetCore.OData.Query;
 using Microsoft.AspNetCore.OData.Routing.Controllers;
 
@@ -44,7 +43,7 @@ public class ArtistsController : ODataController
     }
     
     [HttpPost("odata/Artists")]
-    public async Task<ActionResult<ArtistApiModel>> Post([FromBody] ArtistApiModel input)
+    public async Task<ActionResult<Artist>> Post([FromBody] Artist input)
     {
         try
         {
@@ -58,7 +57,7 @@ public class ArtistsController : ODataController
     }
     
     [HttpPut("odata/Artists({id})")]
-    public async Task<ActionResult<ArtistApiModel>> Put([FromRoute] int id, [FromBody]  ArtistApiModel input)
+    public async Task<ActionResult<Artist>> Put([FromRoute] int id, [FromBody]  Artist input)
     {
         try
         {

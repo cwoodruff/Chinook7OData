@@ -1,7 +1,4 @@
-﻿
-using Chinook.Domain.ApiModels;
-using Chinook.Domain.Entities;
-using Chinook.Domain.Extensions;
+﻿using Chinook.Domain.Entities;
 using Chinook.Domain.Repositories;
 using Microsoft.EntityFrameworkCore;
 

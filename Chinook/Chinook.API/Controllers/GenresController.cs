@@ -1,7 +1,6 @@
-﻿using Chinook.Domain.ApiModels;
+﻿using Chinook.Domain.Entities;
 using Chinook.Domain.Supervisor;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.OData.Deltas;
 using Microsoft.AspNetCore.OData.Query;
 using Microsoft.AspNetCore.OData.Routing.Controllers;
 
@@ -15,7 +14,7 @@ public class GenresController : ODataController
 
     [EnableQuery]
     [HttpGet("odata/Genres")]
-    public async Task<ActionResult<List<GenreApiModel>>> Get()
+    public async Task<ActionResult<List<Genre>>> Get()
     {
         try
         {
@@ -30,7 +29,7 @@ public class GenresController : ODataController
 
     [EnableQuery]
     [HttpGet("odata/Genres({id})")]
-    public async Task<ActionResult<GenreApiModel>> Get([FromRoute] int id)
+    public async Task<ActionResult<Genre>> Get([FromRoute] int id)
     {
         try
         {
@@ -44,7 +43,7 @@ public class GenresController : ODataController
     }
     
     [HttpPost("odata/Genres")]
-    public async Task<ActionResult<GenreApiModel>> Post([FromBody] GenreApiModel input)
+    public async Task<ActionResult<Genre>> Post([FromBody] Genre input)
     {
         try
         {
@@ -58,7 +57,7 @@ public class GenresController : ODataController
     }
     
     [HttpPut("odata/Genres({id})")]
-    public async Task<ActionResult<GenreApiModel>> Put([FromRoute] int id, [FromBody] GenreApiModel input)
+    public async Task<ActionResult<Genre>> Put([FromRoute] int id, [FromBody] Genre input)
     {
         try
         {

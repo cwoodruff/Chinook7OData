@@ -1,5 +1,4 @@
-using Chinook.Domain.ApiModels;
-using Chinook.Domain.Extensions;
+using Chinook.Domain.Entities;
 using FluentValidation;
 using Microsoft.Extensions.Caching.Memory;
 
@@ -7,12 +6,10 @@ namespace Chinook.Domain.Supervisor;
 
 public partial class ChinookSupervisor
 {
-    public async Task<List<MediaTypeApiModel>> GetAllMediaType()
+    public async Task<List<MediaType>> GetAllMediaType()
     {
         var mediaTypes = await _mediaTypeRepository.GetAll();
-        var mediaTypeApiModels = mediaTypes.ConvertAll();
-
-        foreach (var mediaType in mediaTypeApiModels)
+        foreach (var mediaType in mediaTypes)
         {
             var cacheEntryOptions =
                 new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromSeconds(604800))
@@ -20,60 +17,41 @@ public partial class ChinookSupervisor
             ;
             _cache.Set(string.Concat("MediaType-", mediaType.Id), mediaType, (TimeSpan)cacheEntryOptions);
         }
-        var newPagedList = new List<MediaTypeApiModel>(mediaTypeApiModels.ToList());
-        return newPagedList;
+        return mediaTypes;
     }
 
-    public async Task<MediaTypeApiModel?> GetMediaTypeById(int id)
+    public async Task<MediaType?> GetMediaTypeById(int id)
     {
-        var mediaTypeApiModelCached = _cache.Get<MediaTypeApiModel>(string.Concat("MediaType-", id));
+        var mediaTypeCached = _cache.Get<MediaType>(string.Concat("MediaType-", id));
 
-        if (mediaTypeApiModelCached != null)
+        if (mediaTypeCached != null)
         {
-            return mediaTypeApiModelCached;
+            return mediaTypeCached;
         }
         else
         {
             var mediaType = await _mediaTypeRepository.GetById(id);
             if (mediaType == null) return null;
-            var mediaTypeApiModel = mediaType.Convert();
-            //mediaTypeApiModel.Tracks = (await GetTrackByMediaTypeId(mediaTypeApiModel.Id)).ToList();
-
             var cacheEntryOptions =
                 new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromSeconds(604800))
                     .AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(604800);
-            ;
-            _cache.Set(string.Concat("MediaType-", mediaTypeApiModel.Id), mediaTypeApiModel,
+            _cache.Set(string.Concat("MediaType-", mediaType.Id), mediaType,
                 (TimeSpan)cacheEntryOptions);
-
-            return mediaTypeApiModel;
+            return mediaType;
         }
     }
 
-    public async Task<MediaTypeApiModel> AddMediaType(MediaTypeApiModel newMediaTypeApiModel)
+    public async Task<MediaType> AddMediaType(MediaType newMediaType)
     {
-        await _mediaTypeValidator.ValidateAndThrowAsync(newMediaTypeApiModel);
-
-        var mediaType = newMediaTypeApiModel.Convert();
-
-        mediaType = await _mediaTypeRepository.Add(mediaType);
-        newMediaTypeApiModel.Id = mediaType.Id;
-        return newMediaTypeApiModel;
+        await _mediaTypeValidator.ValidateAndThrowAsync(newMediaType);
+        return await _mediaTypeRepository.Add(newMediaType);
     }
 
-    public async Task<bool> UpdateMediaType(MediaTypeApiModel mediaTypeApiModel)
+    public async Task<bool> UpdateMediaType(MediaType mediaType)
     {
-        await _mediaTypeValidator.ValidateAndThrowAsync(mediaTypeApiModel);
-
-        var mediaType = await _mediaTypeRepository.GetById(mediaTypeApiModel.Id);
-
-        if (mediaType == null) return false;
-        mediaType.Id = mediaTypeApiModel.Id;
-        mediaType.Name = mediaTypeApiModel.Name ?? string.Empty;
-
+        await _mediaTypeValidator.ValidateAndThrowAsync(mediaType);
         return await _mediaTypeRepository.Update(mediaType);
     }
 
-    public Task<bool> DeleteMediaType(int id)
-        => _mediaTypeRepository.Delete(id);
+    public Task<bool> DeleteMediaType(int id) => _mediaTypeRepository.Delete(id);
 }

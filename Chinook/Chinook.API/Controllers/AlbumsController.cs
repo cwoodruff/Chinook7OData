@@ -1,7 +1,6 @@
-﻿using Chinook.Domain.ApiModels;
+﻿using Chinook.Domain.Entities;
 using Chinook.Domain.Supervisor;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.OData.Deltas;
 using Microsoft.AspNetCore.OData.Query;
 using Microsoft.AspNetCore.OData.Routing.Controllers;
 
@@ -15,7 +14,7 @@ public class AlbumsController : ODataController
 
     [EnableQuery]
     [HttpGet("odata/Albums")]
-    public async Task<ActionResult<List<AlbumApiModel>>> Get()
+    public async Task<ActionResult<List<Album>>> Get()
     {
         try
         {
@@ -30,7 +29,7 @@ public class AlbumsController : ODataController
 
     [EnableQuery]
     [HttpGet("odata/Albums({id})")]
-    public async Task<ActionResult<AlbumApiModel>> Get([FromRoute] int id)
+    public async Task<ActionResult<Album>> Get([FromRoute] int id)
     {
         try
         {
@@ -44,7 +43,7 @@ public class AlbumsController : ODataController
     }
 
     [HttpPost("odata/Albums")]
-    public async Task<ActionResult> Post([FromBody] AlbumApiModel input)
+    public async Task<ActionResult> Post([FromBody] Album input)
     {
         try
         {
@@ -58,7 +57,7 @@ public class AlbumsController : ODataController
     }
     
     [HttpPut("odata/Albums({id})")]
-    public async Task<ActionResult> Put([FromRoute] int id, [FromBody] AlbumApiModel input)
+    public async Task<ActionResult> Put([FromRoute] int id, [FromBody] Album input)
     {
         try
         {

@@ -1,5 +1,4 @@
-using Chinook.Domain.ApiModels;
-using Chinook.Domain.Extensions;
+using Chinook.Domain.Entities;
 using FluentValidation;
 using Microsoft.Extensions.Caching.Memory;
 
@@ -7,12 +6,10 @@ namespace Chinook.Domain.Supervisor;
 
 public partial class ChinookSupervisor
 {
-    public async Task<List<InvoiceApiModel>> GetAllInvoice()
+    public async Task<List<Invoice>> GetAllInvoice()
     {
         var invoices = await _invoiceRepository.GetAll();
-        var invoiceApiModels = invoices.ConvertAll();
-
-        foreach (var invoice in invoiceApiModels)
+        foreach (var invoice in invoices)
         {
             var cacheEntryOptions =
                 new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromSeconds(604800))
@@ -20,83 +17,47 @@ public partial class ChinookSupervisor
             ;
             _cache.Set(string.Concat("Invoice-", invoice.Id), invoice, (TimeSpan)cacheEntryOptions);
         }
-        var newPagedList = new List<InvoiceApiModel>(invoiceApiModels.ToList());
-        return newPagedList;
+        return invoices;
     }
 
-    public async Task<InvoiceApiModel?> GetInvoiceById(int id)
+    public async Task<Invoice?> GetInvoiceById(int id)
     {
-        var invoiceApiModelCached = _cache.Get<InvoiceApiModel>(string.Concat("Invoice-", id));
+        var invoiceCached = _cache.Get<Invoice>(string.Concat("Invoice-", id));
 
-        if (invoiceApiModelCached != null)
+        if (invoiceCached != null)
         {
-            return invoiceApiModelCached;
+            return invoiceCached;
         }
         else
         {
             var invoice = await _invoiceRepository.GetById(id);
             if (invoice == null) return null;
-            var invoiceApiModel = invoice.Convert();
-            //invoiceApiModel.InvoiceLines = (await GetInvoiceLineByInvoiceId(invoiceApiModel.Id)).ToList();
 
             var cacheEntryOptions =
                 new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromSeconds(604800))
                     .AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(604800);
-            ;
-            _cache.Set(string.Concat("Invoice-", invoiceApiModel.Id), invoiceApiModel, (TimeSpan)cacheEntryOptions);
+            _cache.Set(string.Concat("Invoice-", invoice.Id), invoice, (TimeSpan)cacheEntryOptions);
 
-            return invoiceApiModel;
+            return invoice;
         }
     }
 
-    public async Task<List<InvoiceApiModel>> GetInvoiceByCustomerId(int id)
+    public async Task<List<Invoice>> GetInvoiceByCustomerId(int id) => await _invoiceRepository.GetByCustomerId(id);
+
+    public async Task<Invoice> AddInvoice(Invoice newInvoice)
     {
-        var invoices = await _invoiceRepository.GetByCustomerId(id);
-        var invoiceApiModels = invoices.ConvertAll();
-        var newPagedList = new List<InvoiceApiModel>(invoiceApiModels.ToList());
-        return newPagedList;
+        await _invoiceValidator.ValidateAndThrowAsync(newInvoice);
+        return await _invoiceRepository.Add(newInvoice);
     }
 
-    public async Task<InvoiceApiModel> AddInvoice(InvoiceApiModel newInvoiceApiModel)
+    public async Task<bool> UpdateInvoice(Invoice invoice)
     {
-        await _invoiceValidator.ValidateAndThrowAsync(newInvoiceApiModel);
-
-        var invoice = newInvoiceApiModel.Convert();
-
-        invoice = await _invoiceRepository.Add(invoice);
-        newInvoiceApiModel.Id = invoice.Id;
-        return newInvoiceApiModel;
-    }
-
-    public async Task<bool> UpdateInvoice(InvoiceApiModel invoiceApiModel)
-    {
-        await _invoiceValidator.ValidateAndThrowAsync(invoiceApiModel);
-
-        var invoice = await _invoiceRepository.GetById(invoiceApiModel.Id);
-
-        if (invoice == null) return false;
-        invoice.Id = invoiceApiModel.Id;
-        invoice.CustomerId = invoiceApiModel.CustomerId;
-        invoice.InvoiceDate = invoiceApiModel.InvoiceDate;
-        invoice.BillingAddress = invoiceApiModel.BillingAddress ?? string.Empty;
-        invoice.BillingCity = invoiceApiModel.BillingCity ?? string.Empty;
-        invoice.BillingState = invoiceApiModel.BillingState ?? string.Empty;
-        invoice.BillingCountry = invoiceApiModel.BillingCountry ?? string.Empty;
-        invoice.BillingPostalCode = invoiceApiModel.BillingPostalCode ?? string.Empty;
-        invoice.Total = invoiceApiModel.Total;
-
+        await _invoiceValidator.ValidateAndThrowAsync(invoice);
         return await _invoiceRepository.Update(invoice);
     }
 
-    public Task<bool> DeleteInvoice(int id)
-        => _invoiceRepository.Delete(id);
+    public Task<bool> DeleteInvoice(int id) => _invoiceRepository.Delete(id);
 
 
-    public async Task<List<InvoiceApiModel>> GetInvoiceByEmployeeId(int id)
-    {
-        var invoices = await _invoiceRepository.GetByEmployeeId(id);
-        var invoiceApiModels = invoices.ConvertAll();
-        var newPagedList = new List<InvoiceApiModel>(invoiceApiModels.ToList());
-        return newPagedList;
-    }
+    public async Task<List<Invoice>> GetInvoiceByEmployeeId(int id) => await _invoiceRepository.GetByEmployeeId(id);
 }

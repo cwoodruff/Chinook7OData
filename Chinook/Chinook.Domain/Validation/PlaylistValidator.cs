@@ -1,9 +1,9 @@
-﻿using Chinook.Domain.ApiModels;
+﻿using Chinook.Domain.Entities;
 using FluentValidation;
 
 namespace Chinook.Domain.Validation;
 
-public class PlaylistValidator : AbstractValidator<PlaylistApiModel>
+public class PlaylistValidator : AbstractValidator<Playlist>
 {
     public PlaylistValidator()
     {

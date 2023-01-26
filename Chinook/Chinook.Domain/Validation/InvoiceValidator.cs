@@ -1,9 +1,9 @@
-using Chinook.Domain.ApiModels;
+using Chinook.Domain.Entities;
 using FluentValidation;
 
 namespace Chinook.Domain.Validation;
 
-public class InvoiceValidator : AbstractValidator<InvoiceApiModel>
+public class InvoiceValidator : AbstractValidator<Invoice>
 {
     public InvoiceValidator()
     {

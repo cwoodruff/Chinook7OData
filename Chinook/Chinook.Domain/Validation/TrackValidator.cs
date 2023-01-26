@@ -1,9 +1,9 @@
-﻿using Chinook.Domain.ApiModels;
+﻿using Chinook.Domain.Entities;
 using FluentValidation;
 
 namespace Chinook.Domain.Validation;
 
-public class TrackValidator : AbstractValidator<TrackApiModel>
+public class TrackValidator : AbstractValidator<Track>
 {
     public TrackValidator()
     {
